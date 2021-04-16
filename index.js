@@ -1,13 +1,8 @@
 const express = require("express");
-const { getAllUsers, newUser, deposit, usersDetails, updateCredit, transfer, withdraw } = require("./utils");
+const { newUser, deposit, usersDetails, userDetails, updateCredit, transfer, withdraw } = require("./utils");
 
 const app = express();
 app.use(express.json());
-
-// app.get("/api/users", async (req, res) => {
-//   const users = await database();
-//   res.status(200).send(users);
-// });
 
 app.post("/api/newuser/:passportID", async (req, res) => {
   const { passportID } = req.params;
@@ -17,7 +12,6 @@ app.post("/api/newuser/:passportID", async (req, res) => {
 
 app.put("/api/deposit/:passportID/:cash", async (req, res) => {
   const { passportID, cash } = req.params;
-  // await deposit(passportID, cash);
   const { status, data } = await deposit(passportID, cash);
   res.status(status).json(data);
 });
@@ -42,6 +36,12 @@ app.put("/api/withdraw/:passportID/:cash", async (req, res) => {
 
 app.get("/api/users", async (req, res) => {
   const { status, data } = await usersDetails();
+  res.status(status).json(data);
+});
+
+app.get("/api/user/:passportID", async (req, res) => {
+  const { passportID } = req.params;
+  const { status, data } = await userDetails(passportID);
   res.status(status).json(data);
 });
 

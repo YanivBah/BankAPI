@@ -71,6 +71,7 @@ const withdraw = async (passportID, cash) => {
   const vaildCash = regex.test(cash);
   if (!vaildCash || Number(cash) === 0) return response(406, {error: 'Cash is negative or not in the right format!'});
   const { users, userIndex } = await getUserIndex(passportID);
+  if (userIndex === -1) return response(404, { error: "User with this passportID not found!" });
   const decrease = updateMoney("decrease", users[userIndex], Number(cash));
   if (!decrease) return response(404, { error: "You don't have enough money." });
   saveData(users);
@@ -92,8 +93,10 @@ const transfer = async (fromPassportID, cash, toPassportID) => {
   return response(200, users[fromUserIndex]);
 };
 
-const userDetails = async () => {
-
+const userDetails = async (passportID) => {
+  const { users, userIndex } = await getUserIndex(passportID);
+  if (userIndex === -1) return response(404, { error: "User with this passportID not found!" });
+  return response(200, users[userIndex]);
 }
 
 const usersDetails = async () => {
@@ -109,4 +112,5 @@ module.exports = {
   updateCredit,
   transfer,
   withdraw,
+  userDetails,
 };
