@@ -11,8 +11,21 @@ const getUserIndex = async (passportID) => {
   return { users, userIndex };
 }
 
+const updateMoney = (type, user, cash) => {
+  if (type === 'decrease') {
+    if (user.cash + user.credit >= cash) {
+      user.cash -= cash;
+      return "DONE";
+    }
+  } else if (type === 'increase') {
+    user.cash += cash;
+    return "DONE";
+  }
+  return null;
+}
+
 const response = (statusCode, data) => {
-  return {status: statusCode, data};
+return {status: statusCode, data};
 }
 
 const saveData = async (database) => {
@@ -34,7 +47,7 @@ const newUser = async (passportID) => {
 const deposit = async (passportID, cash) => {
   const regex = /^([.]\d+|\d+([.]\d+)?)$/;
   const vaildCash = regex.test(cash);
-  if (!vaildCash || Number(cash) === 0) return response(406, {error: 'Cash is negative or not in the right format!'})
+  if (!vaildCash || Number(cash) === 0) return response(406, {error: 'Cash is negative or not in the right format!'});
   const { users, userIndex } = await getUserIndex(passportID);
   if (userIndex === -1) return response(404, { error: "User with this passportID not found!" });
   users[userIndex].cash += Number(cash);
@@ -45,17 +58,24 @@ const deposit = async (passportID, cash) => {
 const updateCredit = async (passportID, credit) => {
   const regex = /^([.]\d+|\d+([.]\d+)?)$/;
   const vaildCredit = regex.test(credit);
-  if (!vaildCredit || Number(credit) === 0) return response(406, {error: 'Cash is negative or not in the right format!'})
+  if (!vaildCredit || Number(credit) === 0) return response(406, {error: 'Credit is negative or not in the right format!'});
   const { users, userIndex } = await getUserIndex(passportID);
   if (userIndex === -1) return response(404, { error: "User with this passportID not found!" });
-  users[userIndex].credit += Number(credit);
+  users[userIndex].credit = Number(credit);
   saveData(users);
   return response(200, users[userIndex]);
 }
 
-const withdraw = async () => {
-
-}
+const withdraw = async (passportID, cash) => {
+  const regex = /^([.]\d+|\d+([.]\d+)?)$/;
+  const vaildCash = regex.test(cash);
+  if (!vaildCash || Number(cash) === 0) return response(406, {error: 'Cash is negative or not in the right format!'});
+  const { users, userIndex } = await getUserIndex(passportID);
+  const decrease = updateMoney("decrease", users[userIndex], Number(cash));
+  if (!decrease) return response(404, { error: "You don't have enough money." });
+  saveData(users);
+  return response(200, users[userIndex]);
+};
 
 const transfer = async (fromPassportID, cash, toPassportID) => {
   const regex = /^([.]\d+|\d+([.]\d+)?)$/;
@@ -65,7 +85,11 @@ const transfer = async (fromPassportID, cash, toPassportID) => {
   if (fromUserIndex === -1) return response(404, { error: "The user you are trying to transfer from not found." });
   const toUserIndex = users.findIndex((user) => user.passportID === toPassportID);
   if (toUserIndex === -1) return response(404, { error: "The user you are trying to transfer to not found." });
-  return response(404, {msg: 'lol'});
+  const decrease = updateMoney("decrease", users[fromUserIndex], Number(cash));
+  if (!decrease) return response(404, { error: "You don't have enough money." });
+  updateMoney("increase", users[toUserIndex], Number(cash));
+  saveData(users);
+  return response(200, users[fromUserIndex]);
 };
 
 const userDetails = async () => {
@@ -84,4 +108,5 @@ module.exports = {
   deposit,
   updateCredit,
   transfer,
+  withdraw,
 };

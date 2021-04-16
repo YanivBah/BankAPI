@@ -1,5 +1,5 @@
 const express = require("express");
-const { getAllUsers, newUser, deposit, usersDetails, updateCredit, transfer } = require("./utils");
+const { getAllUsers, newUser, deposit, usersDetails, updateCredit, transfer, withdraw } = require("./utils");
 
 const app = express();
 app.use(express.json());
@@ -31,6 +31,12 @@ app.put("/api/credit/:passportID/:credit", async (req, res) => {
 app.put("/api/transfer/:fromPassportID/:cash/:toPassportID", async (req, res) => {
   const { fromPassportID, cash, toPassportID } = req.params;
   const { status, data } = await transfer(fromPassportID, cash, toPassportID);
+  res.status(status).json(data);
+});
+
+app.put("/api/withdraw/:passportID/:cash", async (req, res) => {
+  const { passportID, cash } = req.params;
+  const { status, data } = await withdraw(passportID, cash);
   res.status(status).json(data);
 });
 
