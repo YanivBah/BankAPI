@@ -1,0 +1,87 @@
+const fs = require("fs").promises;
+
+const getAllUsers = async () => {
+  const users = JSON.parse(await fs.readFile("./database/users.json", "utf-8"));
+  return users;
+}
+
+const getUserIndex = async (passportID) => {
+  const users = await getAllUsers();
+  const userIndex = users.findIndex((user) => user.passportID === passportID);
+  return { users, userIndex };
+}
+
+const response = (statusCode, data) => {
+  return {status: statusCode, data};
+}
+
+const saveData = async (database) => {
+  await fs.writeFile("./database/users.json", JSON.stringify(database));
+}
+
+const newUser = async (passportID) => {
+  const users = await getAllUsers();
+  const isExist = users.find(user => user.passportID === passportID);
+  if (!isExist) {
+    const newUser = { passportID, cash: 0, credit: 0 };
+    users.push(newUser);
+    saveData(users);
+    return response(201, newUser);
+  } 
+  return response(409, {error: 'User with this passportID already exist!'});
+}
+
+const deposit = async (passportID, cash) => {
+  const regex = /^([.]\d+|\d+([.]\d+)?)$/;
+  const vaildCash = regex.test(cash);
+  if (!vaildCash || Number(cash) === 0) return response(406, {error: 'Cash is negative or not in the right format!'})
+  const { users, userIndex } = await getUserIndex(passportID);
+  if (userIndex === -1) return response(404, { error: "User with this passportID not found!" });
+  users[userIndex].cash += Number(cash);
+  saveData(users);
+  return response(200, users[userIndex]);
+}
+
+const updateCredit = async (passportID, credit) => {
+  const regex = /^([.]\d+|\d+([.]\d+)?)$/;
+  const vaildCredit = regex.test(credit);
+  if (!vaildCredit || Number(credit) === 0) return response(406, {error: 'Cash is negative or not in the right format!'})
+  const { users, userIndex } = await getUserIndex(passportID);
+  if (userIndex === -1) return response(404, { error: "User with this passportID not found!" });
+  users[userIndex].credit += Number(credit);
+  saveData(users);
+  return response(200, users[userIndex]);
+}
+
+const withdraw = async () => {
+
+}
+
+const transfer = async (fromPassportID, cash, toPassportID) => {
+  const regex = /^([.]\d+|\d+([.]\d+)?)$/;
+  const vaildCash = regex.test(cash);
+  if (!vaildCash || Number(cash) === 0) return response(406, {error: 'Cash is negative or not in the right format!'});
+  const { users, userIndex: fromUserIndex } = await getUserIndex(fromPassportID);
+  if (fromUserIndex === -1) return response(404, { error: "The user you are trying to transfer from not found." });
+  const toUserIndex = users.findIndex((user) => user.passportID === toPassportID);
+  if (toUserIndex === -1) return response(404, { error: "The user you are trying to transfer to not found." });
+  return response(404, {msg: 'lol'});
+};
+
+const userDetails = async () => {
+
+}
+
+const usersDetails = async () => {
+  const users = await getAllUsers();
+  return response(200, users);
+}
+
+module.exports = {
+  getAllUsers,
+  usersDetails,
+  newUser,
+  deposit,
+  updateCredit,
+  transfer,
+};
