@@ -1,1 +1,12 @@
-[{"passportID":"000000000","cash":8188,"credit":700},{"passportID":"111111111","cash":500,"credit":0},{"passportID":"222222222","cash":0,"credit":0},{"passportID":"999999999","cash":1605,"credit":0}]
+[
+  { "passportID": "000000000", "cash": 45, "credit": 250, "isActive": true },
+  { "passportID": "111111111", "cash": 25, "credit": 1000, "isActive": true },
+  { "passportID": "222222222", "cash": -320, "credit": 500, "isActive": true },
+  { "passportID": "333333333", "cash": 78, "credit": 100, "isActive": true },
+  { "passportID": "444444444", "cash": 5860, "credit": 9000, "isActive": true },
+  { "passportID": "555555555", "cash": -700, "credit": 2300, "isActive": true },
+  { "passportID": "666666666", "cash": 1659, "credit": 900, "isActive": true },
+  { "passportID": "777777777", "cash": 89, "credit": 200, "isActive": true },
+  { "passportID": "888888888", "cash": 670, "credit": 0, "isActive": true },
+  { "passportID": "999999999", "cash": -346, "credit": 350, "isActive": false }
+]
