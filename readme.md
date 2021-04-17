@@ -3,6 +3,8 @@
 Bank API is a API using [Express](https://expressjs.com/) for Node.js.
 This API allow to create new users, update them and more.
 
+For Postman collection to ease the writing of urls [Click Me!](https://documenter.getpostman.com/view/14812814/TzJsexaw)
+
 ## Docs
 
 #### Get user / all users
